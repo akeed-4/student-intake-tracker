@@ -1,0 +1,25 @@
+<div class="main-container">
+  @switch (currentView()) {
+    @case ('login') {
+      <app-login [error]="loginError()" (login)="handleLogin($event)" />
+    }
+    @case ('parent') {
+      <app-parent-portal (logoutRequest)="logout()" />
+    }
+    @case ('school') {
+      <app-school-dashboard (logoutRequest)="logout()" />
+    }
+    @case ('teacher') {
+      <app-teacher-dashboard (logoutRequest)="logout()" />
+    }
+    @case ('guard') {
+      <app-guard-view (logoutRequest)="logout()" />
+    }
+    @case ('admin') {
+      <app-admin-dashboard (logoutRequest)="logout()" (changeView)="selectView($event)" />
+    }
+    @case ('role_management') {
+       <app-role-management (changeView)="selectView($event)" />
+    }
+  }
+</div>
