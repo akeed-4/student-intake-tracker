@@ -1,0 +1,39 @@
+<div class="login-container">
+  <header class="login-header">
+    <div class="title-group">
+      <svg class="title-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" /></svg>
+      <h1 class="title">نظام استلام الطلاب</h1>
+    </div>
+    <p class="subtitle">يرجى تسجيل الدخول للمتابعة.</p>
+  </header>
+  <main>
+    <form (submit)="$event.preventDefault(); handleLogin()" class="login-form">
+      <div class="form-group">
+        <label for="username" class="form-label">اسم المستخدم</label>
+        <input id="username" type="text" [value]="loginUsername()" (input)="onLoginUsernameInput($event)" placeholder="مثال: مدير" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="password" class="form-label">كلمة المرور</label>
+        <input id="password" type="password" [value]="loginPassword()" (input)="onLoginPasswordInput($event)" placeholder="••••••••" class="form-input">
+      </div>
+      @if (error()) {
+        <p class="error-message">{{ error() }}</p>
+      }
+      <button type="submit" class="submit-button">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="button-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25-2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" /></svg>
+        تسجيل الدخول
+      </button>
+    </form>
+    <div class="demo-accounts">
+        <p class="demo-title">حسابات تجريبية (كلمة المرور: 123):</p>
+        <p class="demo-subtitle">استخدم الاسم العربي أو الإنجليزي لتسجيل الدخول:</p>
+        <ul class="demo-list">
+            <li><strong>ولي</strong> / <strong>parent</strong></li>
+            <li><strong>مدرسة</strong> / <strong>school</strong></li>
+            <li><strong>معلم</strong> / <strong>teacher</strong></li>
+            <li><strong>حارس</strong> / <strong>guard</strong></li>
+            <li><strong>مدير</strong> / <strong>admin</strong></li>
+        </ul>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,109 @@
+<div class="dashboard-container">
+    <header class="dashboard-header">
+        <button (click)="logout()" title="تسجيل الخروج" class="logout-button">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25-2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" /></svg>
+        </button>
+        <div class="title-group">
+            <svg class="title-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
+            <h1 class="title">لوحة تحكم المدير</h1>
+        </div>
+        <p class="subtitle">إدارة متكاملة لعمليات استلام الطلاب.</p>
+    </header>
+    <main class="dashboard-main">
+      @if (pickupState.status() === 'idle') {
+        <div class="no-requests-view">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+            <h3 class="no-requests-title">لا توجد طلبات استلام حالية</h3>
+            <p>سيتم عرض الطلبات هنا فور وصولها.</p>
+        </div>
+      }
+      @if (pickupState.status() === 'picked_up') {
+        <div class="pickup-complete-view">
+            <div class="success-message">
+              <strong>اكتملت العملية!</strong>
+              <span> تم تسليم الطالب بنجاح.</span>
+            </div>
+            <button (click)="resetForNewDay()" class="reset-button">
+                إعادة تعيين وبدء يوم جديد
+            </button>
+        </div>
+      }
+      @if (pickupState.status() !== 'idle' && pickupState.status() !== 'picked_up') {
+        <div class="main-grid">
+          <!-- School Section -->
+          <section class="grid-section">
+            <h2 class="section-title school-title">متابعة الطلبات</h2>
+             <div class="school-card">
+                <div class="card-header">
+                    <div>
+                        <h3 class="student-name">{{ pickupState.studentName() }}</h3>
+                        <p class="student-class">{{ pickupState.studentClass() }}</p>
+                    </div>
+                    @if (pickupState.status() === 'notified') { <span class="status-badge notified">تم الإبلاغ</span> }
+                    @if (pickupState.status() === 'teacher_alerted') { <span class="status-badge teacher-alerted">تم إبلاغ المعلم</span> }
+                    @if (pickupState.status() === 'ready') { <span class="status-badge ready">جاهز للاستلام</span> }
+                </div>
+                <div class="details-grid">
+                    <div class="detail-item"><p class="detail-label">المستلم</p><p class="detail-value">{{ pickupState.pickupRequestAuthorizedPerson()?.name }} ({{ pickupState.pickupRequestAuthorizedPerson()?.relation }})</p></div>
+                    <div class="detail-item"><p class="detail-label">وقت الوصول</p><p class="detail-value">{{ pickupState.eta() }} دقيقة</p></div>
+                    <div class="detail-item"><p class="detail-label">المركبة</p>
+                        @if(pickupState.carColor() || pickupState.carPlate()){<p class="detail-value">{{ pickupState.carColor() || 'N/A' }} - {{ pickupState.carPlate() || 'N/A' }}</p>} @else {<p class="detail-value not-specified">لم تحدد</p>}
+                    </div>
+                    <div class="detail-item"><p class="detail-label">رمز الاستلام</p><p class="detail-value pickup-code">{{ pickupState.pickupCode() }}</p></div>
+                </div>
+                @if(pickupState.notes()){
+                    <div class="notes-section"><p class="detail-label">ملاحظات ولي الأمر</p><p class="notes-value">{{ pickupState.notes() }}</p></div>
+                }
+                @if(pickupState.status() === 'notified') {
+                    <div class="card-actions">
+                        <button (click)="pickupState.alertTeacher()" class="action-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" /></svg>
+                            إبلاغ المعلم
+                        </button>
+                    </div>
+                }
+              </div>
+          </section>
+
+          <!-- Guard Section -->
+          <section class="grid-section">
+             <h2 class="section-title guard-title">التحقق والأمان</h2>
+             <div class="guard-card">
+                @if(pickupState.verifiedPickup()) {
+                  <div class="verified-view">
+                      <p class="verified-message">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5v2.25a2.25 2.25 0 0 0-2.25 2.25v3.75a2.25 2.25 0 0 0 2.25 2.25h9A2.25 2.25 0 0 0 16.75 14V10.25a2.25 2.25 0 0 0-2.25-2.25V5.5A4.5 4.5 0 0 0 10 1Zm3 8.25V5.5a3 3 0 0 0-6 0v3.75a.75.75 0 0 1-1.5 0V5.5a4.5 4.5 0 0 1 9 0v3.75a.75.75 0 0 1-1.5 0Z" clip-rule="evenodd" /></svg>
+                          تم التحقق بنجاح!
+                      </p>
+                      <div class="person-details">
+                          <img [src]="pickupState.verifiedPickup()?.authorizedPerson.photo" alt="صورة المستلم" class="person-photo">
+                          <p class="person-name">{{ pickupState.verifiedPickup()?.authorizedPerson.name }}</p>
+                          <p class="person-relation">{{ pickupState.verifiedPickup()?.authorizedPerson.relation }}</p>
+                          <p class="person-id">ID: {{ pickupState.verifiedPickup()?.authorizedPerson.idNumber }}</p>
+                      </div>
+
+                      <div class="student-details">
+                          <p class="student-label">الطالب:</p>
+                          <h3 class="verified-student-name">{{ pickupState.verifiedPickup()?.studentName }}</h3>
+                          <p class="verified-student-class">{{ pickupState.verifiedPickup()?.studentClass }}</p>
+                      </div>
+                     <button (click)="pickupState.confirmPickup()" class="confirm-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                        تأكيد تسليم الطالب
+                    </button>
+                  </div>
+                } @else {
+                  <p class="not-verified-message">لم يتم التحقق من الرمز بعد.</p>
+                }
+             </div>
+          </section>
+        </div>
+      }
+      <div class="manage-roles-section">
+        <button (click)="selectView('role_management')" class="manage-roles-button">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
+            إدارة الأدوار والصلاحيات
+        </button>
+      </div>
+    </main>
+</div>
