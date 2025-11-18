@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 import { Injectable, signal, WritableSignal, effect, inject, Injector, runInInjectionContext } from '@angular/core';
-import { GoogleGenAI } from '@google/genai';
 import { Status, AuthorizedPerson, VerifiedPickup } from './types';
 import { environment } from './environments/environment';
+import { GoogleGenAI } from '@google/genai';
 
 // The shape of the state object to be persisted.
 interface AppState {
