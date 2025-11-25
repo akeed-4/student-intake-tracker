@@ -1,0 +1,190 @@
+<div class="admin-dashboard-container">
+  <!-- Universal Header -->
+  <header class="mobile-header">
+    <button (click)="isMobileMenuOpen.set(true)" class="mobile-menu-toggle" [title]="'Open menu'">
+      <svg xmlns="http://www.w3.org/2000/svg" class="icon-menu" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+    <div class="mobile-header-text">
+      <h2 class="mobile-header-title">{{ ('school-admin.tabs.' + activeView()) | translate }}</h2>
+      @if(authService.currentUserSchool(); as school) {
+        <p class="mobile-header-school">{{ school.name }}</p>
+      }
+    </div>
+  </header>
+
+  <!-- Mobile Menu Overlay (now universal sidebar) -->
+  @if (isMobileMenuOpen()) {
+    <div class="mobile-menu-overlay" (click)="isMobileMenuOpen.set(false)">
+      <aside class="mobile-menu-panel" (click)="$event.stopPropagation()">
+        <header class="mobile-menu-header">
+           <h2 class="sidebar-title">{{ 'school-admin.title' | translate }}</h2>
+          <button (click)="isMobileMenuOpen.set(false)" class="mobile-menu-close" [title]="'Close menu'">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon-close" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </header>
+        <nav class="sidebar-nav">
+           @for(tab of adminTabs; track tab.id) {
+            <button (click)="setView(tab.id)" class="menu-item" [class.menu-item-active]="activeView() === tab.id">
+              <svg xmlns="http://www.w3.org/2000/svg" class="menu-item-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="tab.iconPath" />
+              </svg>
+              <span class="menu-item-label">{{ tab.labelKey | translate }}</span>
+            </button>
+          }
+        </nav>
+      </aside>
+    </div>
+  }
+
+  <!-- Main Content -->
+  <main class="main-content">
+    @switch (activeView()) {
+      @case ('monitor') {
+        <div class="monitor-view-section">
+          <header class="monitor-header">
+            <div>
+              <h2 class="section-title-large">{{ 'school-admin.portal.title' | translate }}</h2>
+              <p class="section-description">{{ 'school-admin.portal.monitor' | translate }}</p>
+            </div>
+            <div class="header-actions-group">
+              <div class="active-requests-summary">
+                 <div class="summary-count">{{ activeRequests().length }}</div>
+                 <div class="summary-label">{{ 'school-admin.portal.activeRequests' | translate }}</div>
+              </div>
+              <button (click)="resetDay()" class="btn-reset-day">
+                {{ 'school-admin.portal.resetDay' | translate }}
+              </button>
+            </div>
+          </header>
+
+          @if (activeRequests().length > 0) {
+            <!-- Card view for mobile -->
+            <div class="request-cards-mobile">
+               @for (request of activeRequests(); track request.code) {
+                <div class="request-card" [class.card-arrived-border]="request.status === 'arrived'">
+                  <div class="request-card-header">
+                    <div>
+                      <div class="student-name-row">
+                        <p class="request-student-name">{{ request.student.name }}</p>
+                        @if (request.assignedZone) {
+                          <div class="pickup-spot-display pickup-spot-display-small">
+                            <div class="pickup-spot-zone">
+                              <span class="pickup-spot-label">{{ 'common.zone' | translate }}</span>
+                              <span class="pickup-spot-value-zone">{{ request.assignedZone }}</span>
+                            </div>
+                            <div class="pickup-spot-number">
+                              <span class="pickup-spot-label">{{ 'common.spot' | translate }}</span>
+                              <span class="pickup-spot-value-number">{{ request.assignedSpot }}</span>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                      <p class="request-student-grade">{{ request.student.grade }}</p>
+                    </div>
+                     <span class="status-badge"
+                        [class.status-pending]="request.status === 'pending'"
+                        [class.status-acknowledged]="request.status === 'acknowledged'"
+                        [class.status-arrived]="request.status === 'arrived'"
+                        [class.status-ready]="request.status === 'ready'"
+                        [class.status-completed]="request.status === 'completed'">
+                        {{ ('statuses.' + request.status) | translate }}
+                      </span>
+                  </div>
+                  <div class="card-divider"></div>
+                  <div class="request-details">
+                    <p><span class="detail-label">{{ 'common.pickupPerson' | translate }}:</span> <span class="detail-value">{{ request.authorizedPerson.name }}</span></p>
+                    <p><span class="detail-label">ETA:</span> <span class="detail-value">~{{ request.eta ?? 'N/A' }} min</span></p>
+                    <p><span class="detail-label">{{ 'common.distance' | translate }}:</span> <span class="detail-value">{{ request.distance ? request.distance.toFixed(1) + ' km' : 'N/A' }}</span></p>
+                  </div>
+                </div>
+               }
+            </div>
+
+            <!-- Table view for larger screens -->
+            <div class="data-table-container">
+              <table class="data-table">
+                <thead class="table-header">
+                  <tr>
+                    <th scope="col" class="table-th">{{ 'common.student' | translate }}</th>
+                    <th scope="col" class="table-th">{{ 'common.pickupPerson' | translate }}</th>
+                    <th scope="col" class="table-th">ETA</th>
+                    <th scope="col" class="table-th">{{ 'common.distance' | translate }}</th>
+                    <th scope="col" class="table-th">{{ 'common.status' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (request of activeRequests(); track request.code) {
+                    <tr class="table-row" [class.table-row-arrived]="request.status === 'arrived'">
+                      <td class="table-td table-td-primary">
+                        <div class="student-name-row">
+                          {{ request.student.name }} <span class="text-slate-500">({{ request.student.grade }})</span>
+                          @if (request.assignedZone) {
+                            <div class="pickup-spot-display pickup-spot-display-small">
+                              <div class="pickup-spot-zone">
+                                <span class="pickup-spot-label">{{ 'common.zone' | translate }}</span>
+                                <span class="pickup-spot-value-zone">{{ request.assignedZone }}</span>
+                              </div>
+                              <div class="pickup-spot-number">
+                                <span class="pickup-spot-label">{{ 'common.spot' | translate }}</span>
+                                <span class="pickup-spot-value-number">{{ request.assignedSpot }}</span>
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      </td>
+                      <td class="table-td">{{ request.authorizedPerson.name }}</td>
+                      <td class="table-td">~{{ request.eta ?? 'N/A' }} min</td>
+                      <td class="table-td">{{ request.distance ? request.distance.toFixed(1) + ' km' : 'N/A' }}</td>
+                      <td class="table-td">
+                        <span class="status-badge"
+                          [class.status-pending]="request.status === 'pending'"
+                          [class.status-acknowledged]="request.status === 'acknowledged'"
+                          [class.status-arrived]="request.status === 'arrived'"
+                          [class.status-ready]="request.status === 'ready'"
+                          [class.status-completed]="request.status === 'completed'">
+                          {{ ('statuses.' + request.status) | translate }}
+                        </span>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="no-requests-message">
+              <p class="no-requests-text">{{ 'school-admin.portal.noRequests' | translate }}</p>
+            </div>
+          }
+        </div>
+      }
+      @case ('staff') {
+        <app-staff-management></app-staff-management>
+      }
+      @case ('students') {
+        <app-student-management></app-student-management>
+      }
+      @case ('classes') {
+        <app-class-management></app-class-management>
+      }
+       @case ('settings') {
+        <app-school-settings></app-school-settings>
+      }
+      @case ('analytics') {
+        <app-analytics-dashboard></app-analytics-dashboard>
+      }
+       @case ('buses') {
+        <app-bus-management></app-bus-management>
+      }
+       @case ('activities') {
+        <app-activity-management></app-activity-management>
+      }
+      @case ('broadcast') {
+        <app-broadcast></app-broadcast>
+      }
+    }
+  </main>
+</div>

@@ -1,0 +1,22 @@
+<div class="broadcast-container">
+  <h2 class="section-title">{{ 'broadcast.title' | translate }}</h2>
+  <p class="section-description">{{ 'broadcast.description' | translate }}</p>
+  <div class="form-card">
+    <form (submit)="sendMessage()">
+      <textarea 
+        class="broadcast-textarea"
+        rows="5"
+        [ngModel]="message()"
+        (ngModelChange)="message.set($event)"
+        name="broadcastMessage"
+        [placeholder]="'broadcast.placeholder' | translate"></textarea>
+      <button 
+        type="submit" 
+        [disabled]="!message().trim()"
+        class="btn-send"
+        [class.btn-disabled]="!message().trim()">
+        {{ 'broadcast.sendButton' | translate }}
+      </button>
+    </form>
+  </div>
+</div>

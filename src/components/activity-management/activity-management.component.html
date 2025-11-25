@@ -1,0 +1,166 @@
+<div class="activity-management-container">
+  <h2 class="section-title">{{ 'school-admin.tabs.activities' | translate }}</h2>
+  <p class="section-description">{{ 'activityManagement.description' | translate }}</p>
+
+  <div class="form-and-list-grid">
+    <!-- Add/Edit Activity Form -->
+    <div class="add-edit-form-card">
+      <h3 class="form-card-title">
+        @if (editingActivity()) {
+          {{ 'activityManagement.editTitle' | translate }}
+        } @else {
+          {{ 'activityManagement.addTitle' | translate }}
+        }
+      </h3>
+      <form (submit)="saveActivity()" class="form-spacing">
+        <div>
+          <label class="form-label">{{ 'activityManagement.name' | translate }}</label>
+          <input type="text" [ngModel]="activityForm().name" (ngModelChange)="updateActivityForm('name', $event)" name="activityName" required class="form-input">
+        </div>
+        <div>
+          <label class="form-label">{{ 'activityManagement.supervisor' | translate }}</label>
+           <select [ngModel]="activityForm().supervisorId" (ngModelChange)="updateActivityForm('supervisorId', $event)" name="supervisorId" required class="form-select">
+            <option value="" disabled>{{ 'activityManagement.selectSupervisor' | translate }}</option>
+            @for(teacher of teachers(); track teacher.id) {
+              <option [value]="teacher.id">{{ teacher.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="time-grid">
+          <div>
+            <label class="form-label">{{ 'activityManagement.startTime' | translate }}</label>
+            <input type="time" [ngModel]="activityForm().startTime" (ngModelChange)="updateActivityForm('startTime', $event)" name="startTime" required class="form-input">
+          </div>
+          <div>
+            <label class="form-label">{{ 'activityManagement.endTime' | translate }}</label>
+            <input type="time" [ngModel]="activityForm().endTime" (ngModelChange)="updateActivityForm('endTime', $event)" name="endTime" required class="form-input">
+          </div>
+        </div>
+        <div>
+          <label class="form-label">{{ 'activityManagement.location' | translate }}</label>
+          <input type="text" [ngModel]="activityForm().location" (ngModelChange)="updateActivityForm('location', $event)" name="location" required class="form-input">
+        </div>
+        <div class="form-buttons-padding">
+          <button type="submit" [disabled]="!isActivityFormValid()" class="btn-primary" [class.btn-disabled]="!isActivityFormValid()">
+            @if (editingActivity()) {
+              {{ 'common.saveChanges' | translate }}
+            } @else {
+              {{ 'activityManagement.addButton' | translate }}
+            }
+          </button>
+          @if (editingActivity()) {
+            <button type="button" (click)="cancelEdit()" class="btn-secondary">
+              {{ 'common.cancel' | translate }}
+            </button>
+          }
+        </div>
+      </form>
+    </div>
+
+    <!-- List of activities -->
+    <div class="list-wrapper">
+      <h3 class="form-card-title">{{ 'activityManagement.existing' | translate }}</h3>
+       @if (activities().length > 0) {
+        <!-- Mobile Card View -->
+        <div class="item-cards-mobile">
+            @for (activity of activities(); track activity.id) {
+                <div class="item-card">
+                    <div class="item-card-header">
+                        <h4 class="item-name">{{ activity.name }}</h4>
+                        <p class="item-subtitle">{{ getSupervisorName(activity.supervisorId) }}</p>
+                         <p class="item-subtitle">{{ activity.location }} | {{ activity.startTime }} - {{ activity.endTime }}</p>
+                    </div>
+                    <div class="card-divider"></div>
+                    <div class="item-details">
+                        <span class="detail-label">{{ 'activityManagement.assignedStudents' | translate }}:</span>
+                        <span class="detail-value">{{ activity.studentIds.length }}</span>
+                    </div>
+                    <div class="card-divider"></div>
+                    <div class="card-actions">
+                        <button (click)="openStudentAssignmentModal(activity)" class="action-button assign-button" [title]="'activityManagement.assignStudents' | translate">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg>
+                        </button>
+                        <button (click)="startEdit(activity)" class="action-button edit-button" [title]="'common.edit' | translate">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>
+                        </button>
+                        <button (click)="deleteActivity(activity)" class="action-button delete-button" [title]="'common.delete' | translate">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+        <!-- Desktop Table View -->
+        <div class="data-table-container">
+            <table class="data-table">
+                <thead class="table-header">
+                    <tr>
+                        <th scope="col" class="table-th">{{ 'activityManagement.name' | translate }}</th>
+                        <th scope="col" class="table-th">{{ 'activityManagement.supervisor' | translate }}</th>
+                        <th scope="col" class="table-th">{{ 'activityManagement.assignedStudents' | translate }}</th>
+                        <th scope="col" class="table-th table-th-actions">{{ 'common.actions' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (activity of activities(); track activity.id) {
+                        <tr class="table-row">
+                            <td class="table-td-primary">
+                                {{ activity.name }}
+                                <div class="table-td-subtitle">{{ activity.location }} | {{ activity.startTime }} - {{ activity.endTime }}</div>
+                            </td>
+                            <td class="table-td">{{ getSupervisorName(activity.supervisorId) }}</td>
+                            <td class="table-td">{{ activity.studentIds.length }}</td>
+                            <td class="table-td table-td-actions">
+                                <div class="action-buttons-group">
+                                    <button (click)="openStudentAssignmentModal(activity)" class="action-button assign-button" [title]="'activityManagement.assignStudents' | translate">
+                                      <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg>
+                                    </button>
+                                    <button (click)="startEdit(activity)" class="action-button edit-button" [title]="'common.edit' | translate">
+                                      <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>
+                                    </button>
+                                    <button (click)="deleteActivity(activity)" class="action-button delete-button" [title]="'common.delete' | translate">
+                                      <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+      } @else {
+        <div class="no-data-message">
+          <p>{{ 'activityManagement.noActivities' | translate }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Student Assignment Modal -->
+  @if (assigningStudentsToActivity(); as activity) {
+    <div class="modal-overlay" (click)="closeStudentAssignmentModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h3 class="modal-title">{{ 'activityManagement.assignStudentsTo' | translate }} {{ activity.name }}</h3>
+        
+        <div class="student-assignment-grid">
+          <div class="student-list-container">
+            <h4 class="list-title">{{ 'activityManagement.availableStudents' | translate }}</h4>
+            <div class="student-list">
+              @for(student of studentsForAssignmentModal(); track student.id) {
+                <label class="student-list-item">
+                  <input type="checkbox" [checked]="selectedStudentsForAssignment().has(student.id)" (change)="toggleStudentSelection(student.id)" class="student-checkbox">
+                  {{ student.name }} ({{ student.class }})
+                </label>
+              }
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-actions">
+          <button (click)="closeStudentAssignmentModal()" class="btn-secondary">{{ 'common.cancel' | translate }}</button>
+          <button (click)="saveStudentAssignments()" class="btn-primary">{{ 'common.saveChanges' | translate }}</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

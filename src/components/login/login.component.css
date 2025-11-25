@@ -1,0 +1,109 @@
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: fade-in 0.5s ease-out forwards;
+  width: 100%;
+}
+
+.login-content-wrapper {
+  width: 100%;
+  max-width: 28rem;
+  padding: 2.5rem 1.5rem;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) { 
+  .login-content-wrapper {
+    padding: 3rem 2.5rem; 
+  }
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.login-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-white);
+}
+
+@media (min-width: 640px) { 
+  .login-title {
+    font-size: 2.5rem;
+  }
+}
+
+.login-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-slate-300);
+  margin-bottom: 0.5rem;
+}
+
+.form-input {
+  width: 90%;
+  background-color: var(--color-slate-800);
+  border: 1px solid var(--color-slate-700);
+  border-radius: 0.5rem;
+  padding: 0.875rem 1rem;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  border: 2px solid transparent;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--color-cyan-500);
+  background-color: var(--color-slate-900);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.3);
+}
+
+.login-error-message {
+  color: var(--color-red-400);
+  font-size: 0.875rem;
+  text-align: center;
+  background-color: rgba(220, 38, 38, 0.1);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+.form-actions-group {
+  margin-top: 1rem;
+}
+
+.btn-primary {
+  width: 100%;
+  background-image: linear-gradient(to right, var(--color-cyan-500) 0%, var(--color-cyan-400) 51%, var(--color-cyan-500) 100%);
+  background-size: 200% auto;
+  color: var(--color-white);
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px 0 rgba(6, 182, 212, 0.39);
+  transition: background-position 0.3s ease-in-out, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+  background-position: right center; /* change the direction of the change here */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px 0 rgba(6, 182, 212, 0.23);
+}

@@ -1,0 +1,14 @@
+:host {
+    display: block;
+    background-color: white;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    display: inline-block;
+    line-height: 0; /* To remove space under image */
+}
+
+.qr-code-host :is(img) { /* Using :is for specificity */
+    display: block;
+    width: 180px;
+    height: 180px;
+}

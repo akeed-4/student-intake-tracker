@@ -1,0 +1,32 @@
+<div class="splash-screen-container-global">
+  <!-- New SVG Logo representing a school and student -->
+  <svg class="logo-svg" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" class="logo-gradient-start" />
+            <stop offset="100%" class="logo-gradient-end" />
+        </linearGradient>
+    </defs>
+    
+    <!-- School Building -->
+    <path fill="url(#logo-gradient)" d="M4,60 V28 L32,4 L60,28 V60 H4 Z" />
+    
+    <!-- School Details -->
+    <path fill-opacity="0.3" class="logo-inner-shadow" d="M29,60 V46 h6 v14 Z" /> <!-- Door -->
+    <rect x="14" y="36" width="8" height="8" rx="2" fill-opacity="0.3" class="logo-inner-shadow" /> <!-- Window left -->
+    <rect x="42" y="36" width="8" height="8" rx="2" fill-opacity="0.3" class="logo-inner-shadow" /> <!-- Window right -->
+    <circle cx="32" cy="18" r="4" fill-opacity="0.3" class="logo-inner-shadow" /> <!-- Clock -->
+
+    <!-- Student Figure -->
+    <g transform="translate(10, 5)">
+      <circle cx="46" cy="38" r="5" fill="white" />
+      <path d="M40,55 V45 C40,43 42,43 42,43 H50 C50,43 52,43 52,45 V55 Z" fill="white" />
+    </g>
+</svg>
+
+  <h1 class="splash-welcome-message">
+    {{ 'splash.welcomeMessage' | translate }}
+  </h1>
+  
+  <div class="loading-spinner-global"></div>
+</div>

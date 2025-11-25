@@ -1,0 +1,165 @@
+<div class="account-management-container">
+  @if (editingUser()) {
+    <div class="edit-form-card">
+      <h3 class="edit-form-title">{{ 'super-admin.accountManagement.editTitle' | translate }}: {{ editingUser()?.name }}</h3>
+      <form (submit)="saveUser()" class="form-layout">
+        <div class="form-grid">
+          <div>
+            <label class="form-label">{{ 'schoolManagement.adminName' | translate }}</label>
+            <input type="text" [ngModel]="editForm().name" (ngModelChange)="updateEditForm('name', $event)" name="userName" required
+                   class="form-input">
+          </div>
+          <div>
+            <label class="form-label">{{ 'common.email' | translate }}</label>
+            <input type="email" [ngModel]="editForm().email" (ngModelChange)="updateEditForm('email', $event)" name="userEmail" required
+                   class="form-input">
+          </div>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label class="form-label">{{ 'school-admin.staff.role' | translate }}</label>
+            <select [ngModel]="editForm().role" (ngModelChange)="updateEditForm('role', $event)" name="userRole" required
+                    class="form-select">
+              <option value="" disabled>{{ 'school-admin.staff.selectRole' | translate }}</option>
+              @for(role of userRoles; track role) {
+                <option [value]="role">{{ getRoleTranslation(role) }}</option>
+              }
+            </select>
+          </div>
+          @if (editForm().role !== 'super-admin') {
+            <div>
+              <label class="form-label">{{ 'common.school' | translate }}</label>
+              <select [ngModel]="editForm().schoolId" (ngModelChange)="updateEditForm('schoolId', $event)" name="userSchool"
+                      class="form-select">
+                <option value="" disabled>{{ 'common.selectSchool' | translate }}</option>
+                @for(school of schools(); track school.id) {
+                  <option [value]="school.id">{{ school.name }}</option>
+                }
+              </select>
+            </div>
+          }
+        </div>
+        @if (editForm().role === 'teacher') {
+          <div class="animated-form-field">
+            <label class="form-label">{{ 'school-admin.staff.class' | translate }}</label>
+            <select [ngModel]="editForm().classId" (ngModelChange)="updateEditForm('classId', $event)" name="userClass" required
+                    class="form-select"
+                    [disabled]="!editForm().schoolId">
+              <option value="" disabled>{{ 'school-admin.staff.selectClass' | translate }}</option>
+              @for(cls of classesForSelectedSchool(); track cls.id) {
+                <option [value]="cls.id">{{ cls.name }}</option>
+              }
+            </select>
+          </div>
+        }
+        <div class="form-actions">
+          <button type="button" (click)="cancelEdit()" class="btn-secondary">
+            {{ 'common.cancel' | translate }}
+          </button>
+          <button type="submit" [disabled]="!isEditFormValid()" class="btn-primary"
+                  [class.btn-disabled]="!isEditFormValid()">
+            {{ 'common.saveChanges' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <h2 class="section-title">{{ 'super-admin.accountManagement.title' | translate }}</h2>
+  <p class="section-description">{{ 'super-admin.accountManagement.description' | translate }}</p>
+
+  <div class="search-bar-wrapper">
+    <input type="text" 
+           [ngModel]="searchTerm()"
+           (ngModelChange)="searchTerm.set($event)"
+           [placeholder]="'super-admin.accountManagement.searchPlaceholder' | translate"
+           class="search-input">
+  </div>
+
+  @if (filteredUsers().length > 0) {
+    <!-- Mobile Card View -->
+    <div class="user-cards-mobile">
+        @for (user of filteredUsers(); track user.id) {
+            <div class="user-card">
+                <div class="user-card-header">
+                    <div>
+                        <p class="user-name">{{ user.name }}</p>
+                        <p class="user-email">{{ user.email }}</p>
+                    </div>
+                     <span class="user-role-badge">
+                          {{ getRoleTranslation(user.role) }}
+                      </span>
+                </div>
+                <div class="card-divider"></div>
+                <div class="user-details">
+                    <p><span class="detail-label">{{ 'common.school' | translate }}:</span> <span class="detail-value">{{ user.schoolName }}</span></p>
+                </div>
+                <div class="card-divider"></div>
+                <div class="card-actions">
+                    <button (click)="startEdit(user)" [title]="'common.edit' | translate"
+                            class="action-button edit-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
+                            <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                    <button (click)="deleteUser(user)" [title]="'common.delete' | translate"
+                            class="action-button delete-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Desktop Table View -->
+    <div class="user-table-desktop">
+      <table class="data-table">
+        <thead class="table-header">
+          <tr>
+            <th scope="col" class="table-th">{{ 'schoolManagement.adminName' | translate }}</th>
+            <th scope="col" class="table-th">{{ 'common.email' | translate }}</th>
+            <th scope="col" class="table-th">{{ 'school-admin.staff.role' | translate }}</th>
+            <th scope="col" class="table-th">{{ 'common.school' | translate }}</th>
+            <th scope="col" class="table-th text-align-right">{{ 'common.actions' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of filteredUsers(); track user.id) {
+            <tr class="table-row">
+              <td class="table-td-primary">{{ user.name }}</td>
+              <td class="table-td">{{ user.email }}</td>
+              <td class="table-td">{{ getRoleTranslation(user.role) }}</td>
+              <td class="table-td">{{ user.schoolName }}</td>
+              <td class="table-td text-align-right">
+                <div class="action-buttons-group">
+                  <button (click)="startEdit(user)"
+                          [title]="'common.edit' | translate"
+                          class="action-button edit-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
+                        <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
+                    </svg>
+                  </button>
+                  <button (click)="deleteUser(user)"
+                          [title]="'common.delete' | translate"
+                          class="action-button delete-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="no-results-message">
+      <p>{{ 'super-admin.accountManagement.noUsersFound' | translate }}</p>
+    </div>
+  }
+</div>

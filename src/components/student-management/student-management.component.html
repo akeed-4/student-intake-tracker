@@ -1,0 +1,139 @@
+<div class="student-management-container">
+  <h2 class="section-title">{{ 'school-admin.students.title' | translate }}</h2>
+  <p class="section-description">{{ 'school-admin.students.addTitle' | translate }}</p>
+
+  <div class="form-and-list-grid">
+    <!-- Add/Edit student form -->
+    <div class="add-edit-form-card">
+      <h3 class="form-card-title">
+        @if (editingStudent()) {
+          {{ 'school-admin.students.editTitle' | translate }}
+        } @else {
+          {{ 'school-admin.students.addTitle' | translate }}
+        }
+      </h3>
+      <form (submit)="saveStudent()" class="form-spacing">
+        <div>
+          <label class="form-label">{{ 'school-admin.students.name' | translate }}</label>
+          <input type="text" [ngModel]="studentForm().name" (ngModelChange)="updateStudentForm('name', $event)" name="studentName" required
+                 class="form-input">
+        </div>
+        <div>
+          <label class="form-label">{{ 'school-admin.students.parentPhone' | translate }}</label>
+          <input type="tel" [ngModel]="studentForm().parentPhone" (ngModelChange)="updateStudentForm('parentPhone', $event)" name="parentPhone" required
+                 class="form-input">
+        </div>
+         <div>
+            <label class="form-label">{{ 'school-admin.students.class' | translate }}</label>
+            <select [ngModel]="studentForm().classId" (ngModelChange)="updateStudentForm('classId', $event)" name="studentClass" required
+                    class="form-select">
+              <option value="" disabled>{{ 'school-admin.students.selectClass' | translate }}</option>
+              @for(cls of classes(); track cls.id) {
+                <option [value]="cls.id">{{ cls.name }}</option>
+              }
+            </select>
+          </div>
+        <div class="form-buttons-padding">
+          <button type="submit" [disabled]="!isStudentFormValid()"
+                  class="btn-primary"
+                  [class.btn-disabled]="!isStudentFormValid()">
+            @if (editingStudent()) {
+              {{ 'common.saveChanges' | translate }}
+            } @else {
+              {{ 'school-admin.students.addButton' | translate }}
+            }
+          </button>
+          @if (editingStudent()) {
+            <button type="button" (click)="cancelEdit()"
+                    class="btn-secondary">
+              {{ 'common.cancel' | translate }}
+            </button>
+          }
+        </div>
+      </form>
+    </div>
+
+    <!-- List of students -->
+    <div class="student-list-wrapper">
+      <h3 class="form-card-title">{{ 'school-admin.students.existing' | translate }}</h3>
+       @if (students().length > 0) {
+        <!-- Mobile Card View -->
+        <div class="student-cards-mobile">
+           @for (student of students(); track student.id) {
+            <div class="student-card">
+              <div>
+                <h4 class="student-name">{{ student.name }}</h4>
+                <p class="student-class-info">{{ student.class }} | Parent: {{ student.parentPhone }}</p>
+              </div>
+              <div class="card-divider"></div>
+              <div class="card-actions">
+                 <button (click)="sendInvite(student.parentPhone!)" 
+                        class="btn-invite">
+                  {{ 'school-admin.students.invite' | translate }}
+                </button>
+                <button (click)="startEdit(student)" class="action-button edit-button" [title]="'common.edit' | translate">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                    <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+                <button (click)="deleteStudent(student)" class="action-button delete-button" [title]="'common.delete' | translate">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Desktop Table View -->
+        <div class="data-table-container">
+            <table class="data-table">
+                <thead class="table-header">
+                    <tr>
+                        <th scope="col" class="table-th">{{ 'school-admin.students.name' | translate }}</th>
+                        <th scope="col" class="table-th">{{ 'school-admin.students.class' | translate }}</th>
+                        <th scope="col" class="table-th">{{ 'school-admin.students.parentPhone' | translate }}</th>
+                        <th scope="col" class="table-th table-th-actions">{{ 'common.actions' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (student of students(); track student.id) {
+                        <tr class="table-row">
+                            <td class="table-td-primary">{{ student.name }}</td>
+                            <td class="table-td">{{ student.class }}</td>
+                            <td class="table-td">{{ student.parentPhone }}</td>
+                            <td class="table-td table-td-actions">
+                                <div class="action-buttons-group">
+                                     <button (click)="sendInvite(student.parentPhone!)" 
+                                            class="btn-invite-small">
+                                      {{ 'school-admin.students.invite' | translate }}
+                                    </button>
+                                    <button (click)="startEdit(student)" class="action-button edit-button" [title]="'common.edit' | translate">
+                                      <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                                        <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
+                                      </svg>
+                                    </button>
+                                    <button (click)="deleteStudent(student)" class="action-button delete-button" [title]="'common.delete' | translate">
+                                      <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                      </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+      } @else {
+        <div class="no-students-message">
+          <p>{{ 'school-admin.students.noStudents' | translate }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>

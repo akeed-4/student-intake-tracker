@@ -1,0 +1,103 @@
+<div class="carpooling-container">
+  <header class="header">
+    <h2 class="section-title">{{ 'carpooling.title' | translate }}</h2>
+    <p class="section-description">{{ 'carpooling.description' | translate }}</p>
+  </header>
+
+  <!-- Create Group Form / Button -->
+  <section class="create-group-section">
+    @if (showCreateGroupForm()) {
+      <div class="form-card">
+        <h3 class="form-card-title">{{ 'carpooling.createGroup.title' | translate }}</h3>
+        <form (submit)="createGroup()" class="form-layout">
+          <input type="text" 
+                 [ngModel]="newGroupName()" 
+                 (ngModelChange)="newGroupName.set($event)"
+                 name="groupName"
+                 [placeholder]="'carpooling.groupName.placeholder' | translate" 
+                 class="form-input" required>
+          <div class="form-actions">
+            <button type="button" (click)="toggleCreateGroupForm()" class="btn-secondary">{{ 'common.cancel' | translate }}</button>
+            <button type="submit" [disabled]="!newGroupName()" class="btn-primary">{{ 'carpooling.create.button' | translate }}</button>
+          </div>
+        </form>
+      </div>
+    } @else {
+      <button (click)="toggleCreateGroupForm()" class="btn-primary-full">
+        {{ 'carpooling.createGroup.button' | translate }}
+      </button>
+    }
+  </section>
+
+  <!-- My Groups List -->
+  <section class="my-groups-section">
+    <h3 class="section-title-alt">{{ 'carpooling.myGroups' | translate }}</h3>
+    @if (myGroups().length > 0) {
+      <div class="groups-grid">
+        @for (group of myGroups(); track group.id) {
+          <div class="group-card">
+            <h4 class="group-name">{{ group.name }}</h4>
+            @if (group.admin) {
+              <p class="group-admin-info">
+                <span class="admin-label">{{ 'carpooling.groupAdmin' | translate }}:</span> {{ group.admin.name }}
+              </p>
+            }
+            <div class="card-divider"></div>
+            <h5 class="members-title">{{ 'carpooling.members' | translate }} ({{ group.members.length }})</h5>
+            <div class="members-list">
+              @for (member of group.members; track member.id) {
+                <div class="member-item">
+                  <img src="https://picsum.photos/seed/{{member.name}}/40/40" [alt]="member.name" class="member-avatar">
+                  <span>{{ member.name }}</span>
+                </div>
+              }
+            </div>
+            <div class="card-divider"></div>
+            <div class="card-actions">
+              <button (click)="openInviteModal(group)" class="btn-invite">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 11a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1v-1z" />
+                  </svg>
+                <span>{{ 'carpooling.inviteMember.button' | translate }}</span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="no-data-message">
+        <p>{{ 'carpooling.noGroups' | translate }}</p>
+      </div>
+    }
+  </section>
+
+  <!-- Invite Member Modal -->
+  @if (showInviteModalForGroup(); as group) {
+    <div class="modal-overlay" (click)="closeInviteModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h3 class="modal-title">{{ 'carpooling.inviteMember.title' | translate }} '{{ group.name }}'</h3>
+        
+        <form (submit)="sendInvite()" class="form-layout">
+          @if (parentsToInvite().length > 0) {
+            <select [ngModel]="inviteeUserId()" 
+                    (ngModelChange)="inviteeUserId.set($event)"
+                    name="invitee"
+                    class="form-select" required>
+              <option value="" disabled>{{ 'carpooling.inviteMember.select' | translate }}</option>
+              @for(parent of parentsToInvite(); track parent.id) {
+                <option [value]="parent.id">{{ parent.name }}</option>
+              }
+            </select>
+          } @else {
+            <p class="no-parents-message">{{ 'carpooling.inviteMember.noParents' | translate }}</p>
+          }
+          
+          <div class="modal-actions">
+            <button type="button" (click)="closeInviteModal()" class="btn-secondary">{{ 'common.cancel' | translate }}</button>
+            <button type="submit" [disabled]="!inviteeUserId()" class="btn-primary">{{ 'carpooling.invite.button' | translate }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,73 @@
+<div class="driver-dashboard-container">
+  @if (activeRequestForDriver(); as request) {
+    <div class="pickup-in-progress-container">
+      <h2 class="pickup-in-progress-title">{{ 'driverDashboard.pickupInProgress' | translate }}</h2>
+      <app-pickup-status-card 
+        [pickupCode]="request.code"
+        (arrivalSignaled)="signalArrival()">
+      </app-pickup-status-card>
+    </div>
+  } @else {
+    <header class="dashboard-header">
+      <h1 class="welcome-title">{{ 'driverDashboard.title' | translate }}</h1>
+      <p class="welcome-subtitle">{{ 'driverDashboard.welcome' | translate }}</p>
+    </header>
+
+    @if (assignedStudents().length > 0) {
+      <div class="start-pickup-container">
+        <!-- Assigned Students -->
+        <section>
+          <h3 class="form-section-title">{{ 'driverDashboard.assignedStudents' | translate }}</h3>
+          <div class="student-list-grid">
+            @for (student of assignedStudents(); track student.id) {
+              <div class="student-card">
+                <img [src]="student.photoUrl" [alt]="student.name" class="student-avatar">
+                <p class="student-name">{{ student.name }}</p>
+                <p class="student-class-info">{{ student.class }}</p>
+              </div>
+            }
+          </div>
+        </section>
+
+        <!-- Vehicle Info -->
+        <section>
+          <h3 class="form-section-title">{{ 'parent.steps.vehicleInfo' | translate }}</h3>
+          <div class="vehicle-info-section">
+            <input type="text"
+                    [ngModel]="carInfo().color"
+                    (ngModelChange)="updateCarInfo('color', $event)"
+                    [placeholder]="'parent.placeholders.carColor' | translate"
+                    class="form-input"
+                    dir="auto">
+            <input type="text"
+                    dir="auto"
+                    [ngModel]="carInfo().plateNumber"
+                    (ngModelChange)="updateCarInfo('plateNumber', $event)"
+                    [placeholder]="'parent.placeholders.plateNumber' | translate"
+                    class="form-input plate-number-input">
+            <textarea [ngModel]="pickupNotes()"
+                      (ngModelChange)="pickupNotes.set($event)"
+                      [placeholder]="'parent.placeholders.notes' | translate"
+                      class="form-input form-textarea"
+                      rows="3"
+                      dir="auto"></textarea>
+          </div>
+        </section>
+
+        <!-- Action Button -->
+        <button (click)="requestPickup()" [disabled]="!isRequestValid()" class="btn-start-pickup">
+          <div class="btn-content">
+            <svg xmlns="http://www.w3.org/2000/svg" class="btn-start-pickup-icon" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+            </svg>
+            <span>{{ 'driverDashboard.startPickup' | translate }}</span>
+          </div>
+        </button>
+      </div>
+    } @else {
+      <div class="no-assignments-message">
+        <p class="no-assignments-text">{{ 'driverDashboard.noAssignments' | translate }}</p>
+      </div>
+    }
+  }
+</div>

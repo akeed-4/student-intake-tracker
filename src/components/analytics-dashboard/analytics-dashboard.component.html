@@ -1,0 +1,49 @@
+<div class="analytics-container">
+  <header>
+    <h2 class="section-title">{{ 'analytics.title' | translate }}</h2>
+    <p class="section-description">{{ 'analytics.description' | translate }}</p>
+  </header>
+
+  <!-- "At a Glance" Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <p class="stat-label">{{ 'analytics.totalPickups' | translate }}</p>
+      <p class="stat-value">{{ totalPickups() }}</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-label">{{ 'analytics.avgTime' | translate }}</p>
+      <p class="stat-value">
+        {{ avgPickupTime() }}
+        <span class="stat-unit">{{ 'analytics.minutes' | translate }}</span>
+      </p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-label">{{ 'analytics.peakHour' | translate }}</p>
+      <p class="stat-value">{{ peakHour() }}</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-label">{{ 'analytics.absencesToday' | translate }}</p>
+      <p class="stat-value">{{ totalAbsences() }}</p>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3 class="chart-title">{{ 'analytics.pickupsByHour' | translate }}</h3>
+      <div #barChartContainer class="chart-container bar-chart-container">
+        @if (totalPickups() === 0) {
+          <div class="no-data-message">{{ 'analytics.noData' | translate }}</div>
+        }
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3 class="chart-title">{{ 'analytics.statusDistribution' | translate }}</h3>
+      <div #donutChartContainer class="chart-container donut-chart-container">
+         @if (activeToday().length === 0) {
+          <div class="no-data-message">{{ 'analytics.noData' | translate }}</div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,362 @@
+<main class="parent-portal-container">
+  <!-- Universal Header -->
+  <header class="mobile-header">
+    <button (click)="isMobileMenuOpen.set(true)" class="mobile-menu-toggle" [title]="'Open menu'">
+      <svg xmlns="http://www.w3.org/2000/svg" class="icon-menu" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+    <div class="mobile-header-text">
+      <h2 class="mobile-header-title">{{ ('parent.tabs.' + activeView()) | translate }}</h2>
+    </div>
+  </header>
+
+  <!-- Mobile Menu Overlay (now universal sidebar) -->
+  @if (isMobileMenuOpen()) {
+    <div class="mobile-menu-overlay" (click)="isMobileMenuOpen.set(false)">
+      <aside class="mobile-menu-panel" (click)="$event.stopPropagation()">
+        <header class="mobile-menu-header">
+           <h2 class="sidebar-title">{{ 'parent.portal.title' | translate }}</h2>
+          <button (click)="isMobileMenuOpen.set(false)" class="mobile-menu-close" [title]="'Close menu'">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon-close" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </header>
+        <nav class="sidebar-nav">
+           @for(feature of features; track feature.id) {
+            <button (click)="setView(feature.id)" class="menu-item" [class.menu-item-active]="activeView() === feature.id">
+              <svg xmlns="http://www.w3.org/2000/svg" class="menu-item-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="feature.iconPath" />
+              </svg>
+              <span class="menu-item-label">{{ feature.titleKey | translate }}</span>
+            </button>
+          }
+        </nav>
+      </aside>
+    </div>
+  }
+
+  <!-- Main Content -->
+  <main class="main-content">
+      @switch (activeView()) {
+        @case ('pickup') {
+          @switch (pickupStatus()) {
+            @case ('idle') {
+              <div class="pickup-form-sections">
+                <!-- Step 1: Select Students -->
+                <section>
+                  <h3 class="form-section-title">{{ 'parent.steps.selectStudent' | translate }}</h3>
+                  <div class="student-selection-grid">
+                    @for (student of students(); track student.id) {
+                      <div (click)="toggleStudentSelection(student)"
+                           [class.student-card-selected]="selectedStudents().has(student)"
+                           class="student-card">
+                        @if (selectedStudents().has(student)) {
+                          <span class="selection-badge">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="selection-badge-icon" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                          </span>
+                        }
+                        <img [src]="student.photoUrl" [alt]="student.name" class="student-avatar">
+                        <p class="student-name">{{ student.name }}</p>
+                        <p class="student-class-info">{{ student.class }}</p>
+                      </div>
+                    }
+                  </div>
+                </section>
+
+                <!-- Step 2: Select Person (animated) -->
+                @if (selectedStudents().size > 0) {
+                  <section class="animated-section">
+                    <h3 class="form-section-title">{{ 'parent.steps.selectPerson' | translate }}</h3>
+                    <div class="person-selection-grid">
+                      @for (person of authorizedPersons(); track person.id) {
+                        <div (click)="selectAuthorizedPerson(person)"
+                             [class.person-card-selected]="selectedAuthorizedPerson() === person"
+                             class="person-card">
+                             <button (click)="showPersonDetails(person); $event.stopPropagation()" class="person-details-button">
+                               <svg xmlns="http://www.w3.org/2000/svg" class="person-details-icon" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                             </button>
+                          @if (selectedAuthorizedPerson() === person) {
+                            <span class="selection-badge">
+                               <svg xmlns="http://www.w3.org/2000/svg" class="selection-badge-icon" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                              </svg>
+                            </span>
+                          }
+                          <img [src]="person.photoUrl" [alt]="person.name" class="person-avatar">
+                          <p class="person-name">{{ person.name }}</p>
+                          <p class="person-relation">{{ person.relation }}</p>
+                        </div>
+                      }
+                    </div>
+                  </section>
+                }
+
+                <!-- Step 3: Vehicle Info (animated) -->
+                @if (selectedStudents().size > 0 && selectedAuthorizedPerson()) {
+                  <section class="animated-section vehicle-info-section">
+                    <h3 class="form-section-title">{{ 'parent.steps.vehicleInfo' | translate }}</h3>
+                    <input type="text"
+                           [ngModel]="carInfo().color"
+                           (ngModelChange)="updateCarInfo('color', $event)"
+                           [placeholder]="'parent.placeholders.carColor' | translate"
+                           class="form-input"
+                           dir="auto">
+                    <input type="text"
+                           dir="auto"
+                           [ngModel]="carInfo().plateNumber"
+                           (ngModelChange)="updateCarInfo('plateNumber', $event)"
+                           [placeholder]="'parent.placeholders.plateNumber' | translate"
+                           class="form-input plate-number-input">
+                    <textarea [ngModel]="pickupNotes()"
+                              (ngModelChange)="pickupNotes.set($event)"
+                              [placeholder]="'parent.placeholders.notes' | translate"
+                              class="form-input form-textarea"
+                              rows="3"
+                              dir="auto"></textarea>
+                  </section>
+                }
+                
+                @if (isRequestValid()) {
+                  <button
+                    (click)="initiatePickupSequence()"
+                    class="btn-primary-full">
+                    {{ 'parent.buttons.notify' | translate }}
+                  </button>
+                }
+              </div>
+            }
+            @case ('loading') {
+              <div class="loading-state-message">
+                <div class="spinner"></div>
+                <p class="loading-text">{{ 'common.processing' | translate }}</p>
+              </div>
+            }
+            @case ('success') {
+              <div class="pickup-success-content">
+                <app-pickup-status-card 
+                  [pickupCode]="pickupCode()"
+                  (arrivalSignaled)="signalArrival()">
+                </app-pickup-status-card>
+    
+                @if(pickupMessage()) {
+                  <div class="gemini-message-card">
+                    <blockquote class="gemini-quote">
+                      <p class="gemini-quote-text">
+                        "{{ pickupMessage() }}"
+                      </p>
+                      <cite class="gemini-quote-author">- Gemini AI</cite>
+                    </blockquote>
+                  </div>
+                }
+
+                @if(locationError()) {
+                  <p class="location-error-note">
+                    <span class="location-error-note-label">Note:</span> {{ locationError() }}
+                  </p>
+                }
+              </div>
+            }
+            @case ('error') {
+              <div class="error-display-message">
+                <svg xmlns="http://www.w3.org/2000/svg" class="error-icon" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <p class="error-text">{{ error() }}</p>
+              </div>
+            }
+          }
+        }
+        @case ('absence') {
+          <section class="absence-reporting-section">
+            <h3 class="form-section-title">{{ 'parent.absence.title' | translate }}</h3>
+            <div class="student-absence-selection-grid">
+              @for(student of students(); track student.id) {
+                <button (click)="selectAbsenceStudent(student)"
+                        [class.student-absence-card-selected]="absence.student() === student"
+                        class="student-absence-card">
+                  <p class="student-absence-name">{{ student.name }}</p>
+                  <p class="student-absence-class-info">{{ student.class }}</p>
+                </button>
+              }
+            </div>
+
+            @if (absence.student()) {
+              <div class="absence-form-details">
+                <input type="date"
+                       [ngModel]="absence.date()"
+                       (ngModelChange)="absence.date.set($event)"
+                       class="form-input">
+                <textarea [ngModel]="absence.reason()"
+                          (ngModelChange)="absence.reason.set($event)"
+                          [placeholder]="'parent.placeholders.absenceReason' | translate"
+                          class="form-input form-textarea"
+                          rows="3"
+                          dir="auto"></textarea>
+                <button (click)="reportAbsence()"
+                        [disabled]="!isAbsenceReportValid()"
+                        class="btn-primary"
+                        [class.btn-disabled]="!isAbsenceReportValid()">
+                  {{ 'parent.buttons.reportAbsence' | translate }}
+                </button>
+              </div>
+            }
+          </section>
+        }
+        @case ('management') {
+          <div class="management-component-wrapper">
+            <app-authorized-person-management></app-authorized-person-management>
+          </div>
+        }
+        @case ('bus') {
+          <section class="bus-tracking-section">
+            <h3 class="form-section-title">{{ 'busTracking.title' | translate }}</h3>
+            @if (studentsOnBus().length > 0) {
+              <div class="bus-cards-container">
+                @for (item of studentsOnBus(); track item.student.id) {
+                  <div class="bus-card">
+                    <div class="bus-card-header">
+                      <div class="bus-student-info">
+                        <img [src]="item.student.photoUrl" [alt]="item.student.name" class="bus-student-avatar">
+                        <div>
+                          <p class="bus-student-name">{{ item.student.name }}</p>
+                          <p class="bus-number">{{ item.bus.busNumber }}</p>
+                        </div>
+                      </div>
+                      <span class="bus-status" [class.status-en-route]="item.bus.status === 'en_route'">
+                        {{ ('bus.status.' + item.bus.status) | translate }}
+                      </span>
+                    </div>
+                    <div class="bus-card-body">
+                      <p class="bus-driver-info">{{ 'busManagement.driverName' | translate }}: <span>{{ item.bus.driverName }}</span></p>
+                      @if (item.bus.liveLocation) {
+                        <div class="map-container">
+                          <iframe
+                            class="map-image"
+                            [src]="getBusMapUrl(item.bus.liveLocation)"
+                            style="border:0;"
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade">
+                          </iframe>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="placeholder-section">
+                <p class="placeholder-description">{{ 'busTracking.noBuses' | translate }}</p>
+              </div>
+            }
+          </section>
+        }
+        @case('activities') {
+          <section class="activity-tracking-section">
+            <h3 class="form-section-title">{{ 'parent.activities.title' | translate }}</h3>
+            @if (studentActivities().length > 0) {
+              <div class="activities-container">
+                @for(item of studentActivities(); track item.student.id) {
+                  <div class="student-activity-group">
+                     <div class="student-header">
+                        <img [src]="item.student.photoUrl" [alt]="item.student.name" class="student-avatar-small">
+                        <h4 class="student-activity-name">{{ item.student.name }}</h4>
+                     </div>
+                    <div class="activity-cards-grid">
+                      @for(activity of item.activities; track activity.id) {
+                        <div class="activity-card">
+                          <h5 class="activity-name">{{ activity.name }}</h5>
+                          <p class="activity-detail">
+                            <span class="detail-label">{{ 'parent.activities.supervisor' | translate }}:</span> {{ activity.supervisorName }}
+                          </p>
+                          <p class="activity-detail">
+                            <span class="detail-label">{{ 'parent.activities.time' | translate }}:</span> {{ activity.startTime }} - {{ activity.endTime }}
+                          </p>
+                          <p class="activity-detail">
+                            <span class="detail-label">{{ 'parent.activities.location' | translate }}:</span> {{ activity.location }}
+                          </p>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="placeholder-section">
+                <p class="placeholder-description">{{ 'parent.activities.noActivities' | translate }}</p>
+              </div>
+            }
+          </section>
+        }
+        @case('carpooling') {
+          <div class="management-component-wrapper">
+            <app-carpooling></app-carpooling>
+          </div>
+        }
+      }
+  </main>
+
+  <!-- Person Details Modal -->
+  @if(personForDetails(); as person) {
+    <div class="person-details-modal-overlay" (click)="closeDetailsModal()">
+        <div class="person-details-modal" (click)="$event.stopPropagation()">
+            <button (click)="closeDetailsModal()" class="modal-close-button">
+                <svg xmlns="http://www.w3.org/2000/svg" class="modal-close-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
+            <div class="modal-content">
+                <img [src]="person.photoUrl" [alt]="person.name" class="modal-person-avatar">
+                <div class="modal-person-info">
+                    <h3 class="modal-person-name">{{ person.name }}</h3>
+                    <p class="modal-person-relation">{{ person.relation }}</p>
+                </div>
+                <div class="modal-details-card">
+                    <div class="modal-detail-item">
+                        <span class="modal-detail-label">{{ 'common.phone' | translate }}</span>
+                        <span class="modal-detail-value">{{ person.phone || 'N/A' }}</span>
+                    </div>
+                    <div class="modal-detail-item">
+                        <span class="modal-detail-label">{{ 'common.idNumber' | translate }}</span>
+                        <span class="modal-detail-value modal-detail-value-mono">{{ person.idNumber }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  }
+
+  <!-- Pre-flight check modal -->
+  @if (preflightCheckStatus() !== 'idle') {
+    <div class="preflight-overlay">
+      <div class="preflight-modal">
+        <h3 class="preflight-title">{{ 'parent.preflight.title' | translate }}</h3>
+        @if(preflightCheckStatus() === 'calculating') {
+          <div class="preflight-calculating">
+            <div class="preflight-spinner"></div>
+            <p>{{ 'common.processing' | translate }}</p>
+          </div>
+        } @else if (preflightCheckStatus() === 'confirming') {
+          <div class="preflight-confirm">
+            <p class="preflight-info">
+              @if(locationError()) {
+                {{ locationError() }} {{ 'parent.preflight.locationError' | translate }}
+              } @else {
+                {{ 'parent.preflight.confirmMessage' | translate : { distance: distance()?.toFixed(1) || '?', eta: eta()?.toString() || '?' } }}
+              }
+            </p>
+            <div class="preflight-actions">
+              <button (click)="cancelPickupSequence()" class="btn-preflight-cancel">{{ 'common.cancel' | translate }}</button>
+              <button (click)="confirmAndSendRequest()" class="btn-preflight-confirm">{{ 'parent.preflight.confirmButton' | translate }}</button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</main>

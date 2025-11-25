@@ -1,0 +1,43 @@
+{
+  "hash": "ce4a857a",
+  "configHash": "6d031db8",
+  "lockfileHash": "ec970194",
+  "browserHash": "96a2633f",
+  "optimized": {
+    "@angular/core": {
+      "src": "../../../../../../node_modules/@angular/core/fesm2022/core.mjs",
+      "file": "@angular_core.js",
+      "fileHash": "6e36bb1a",
+      "needsInterop": false
+    },
+    "@angular/forms": {
+      "src": "../../../../../../node_modules/@angular/forms/fesm2022/forms.mjs",
+      "file": "@angular_forms.js",
+      "fileHash": "011aa170",
+      "needsInterop": false
+    },
+    "@angular/platform-browser": {
+      "src": "../../../../../../node_modules/@angular/platform-browser/fesm2022/platform-browser.mjs",
+      "file": "@angular_platform-browser.js",
+      "fileHash": "4623cd60",
+      "needsInterop": false
+    },
+    "@google/genai": {
+      "src": "../../../../../../node_modules/@google/genai/dist/web/index.mjs",
+      "file": "@google_genai.js",
+      "fileHash": "27201553",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-A2YSDDRM": {
+      "file": "chunk-A2YSDDRM.js"
+    },
+    "chunk-6XA3CX3T": {
+      "file": "chunk-6XA3CX3T.js"
+    },
+    "chunk-GOMI4DH3": {
+      "file": "chunk-GOMI4DH3.js"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+<div class="login-container">
+  <div class="login-content-wrapper">
+    <div>
+      <header class="login-header">
+        <h1 class="login-title">
+          {{ 'login.welcomeTitle' | translate }}
+        </h1>
+      </header>
+      <form (submit)="handleLogin()" class="login-form-group">
+        <div>
+          <label for="identifier" class="form-label">{{ 'login.emailOrPhone' | translate }}</label>
+          <input id="identifier" type="text" [ngModel]="identifier()" (ngModelChange)="identifier.set($event)" name="identifier" required
+                 class="form-input" [placeholder]="'login.emailOrPhone' | translate">
+        </div>
+        <div>
+          <label for="password" class="form-label">{{ 'common.password' | translate }}</label>
+          <input id="password" type="password" [ngModel]="password()" (ngModelChange)="password.set($event)" name="password" required
+                 class="form-input" [placeholder]="'login.passwordPlaceholder' | translate">
+        </div>
+        @if (loginError()) {
+          <p class="login-error-message">{{ loginError() }}</p>
+        }
+        <div class="form-actions-group">
+          <button type="submit"
+                  class="btn-primary">
+            {{ 'login.loginButton' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

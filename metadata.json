@@ -1,0 +1,9 @@
+{
+  "name": "Student Pickup System",
+  "description": "A smart system for managing student pickup from schools, powered by Gemini.",
+  "requestFramePermissions": [
+    "geolocation",
+    "camera"
+  ],
+  "environment": {}
+}

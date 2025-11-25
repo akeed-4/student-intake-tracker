@@ -1,0 +1,125 @@
+/* General container animation */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.analytics-container {
+  animation: fade-in 0.5s ease-out forwards;
+  width: 100%;
+}
+
+/* Section Titles */
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-white);
+}
+.section-description {
+  color: var(--color-slate-400);
+  margin-top: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+@media (min-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.stat-card {
+  background-color: var(--color-slate-800);
+  border: 1px solid var(--color-slate-700);
+  border-radius: 0.75rem;
+  padding: 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.stat-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-slate-400);
+  margin-bottom: 0.5rem;
+}
+.stat-value {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--color-white);
+  line-height: 1;
+}
+.stat-unit {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-slate-500);
+  margin-left: 0.25rem;
+}
+
+/* Charts Grid */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+@media (min-width: 1024px) {
+  .charts-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.chart-card {
+  background-color: var(--color-slate-800);
+  border: 1px solid var(--color-slate-700);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+.chart-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-slate-200);
+  margin-bottom: 1.5rem;
+}
+
+.chart-container {
+  width: 100%;
+  height: 20rem; /* 320px */
+}
+
+/* D3 Chart Styles */
+.bar-chart-container :is(text),
+.donut-chart-container :is(text) {
+  font-family: 'Inter', sans-serif;
+  fill: var(--color-slate-400);
+}
+.bar-chart-container :is(.domain),
+.bar-chart-container :is(.tick line) {
+  stroke: var(--color-slate-600);
+}
+
+.bar-tooltip, .donut-tooltip {
+  position: absolute;
+  background-color: var(--color-slate-950);
+  color: var(--color-white);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-slate-700);
+  font-size: 0.875rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.no-data-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-slate-500);
+  font-style: italic;
+}

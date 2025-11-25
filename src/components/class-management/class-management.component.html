@@ -1,0 +1,61 @@
+
+
+<div class="class-management-container">
+  <h2 class="section-title">{{ 'school-admin.classes.title' | translate }}</h2>
+  <p class="section-description">{{ 'school-admin.classes.addTitle' | translate }}</p>
+
+  <div class="form-and-list-grid">
+    <!-- Add new class form -->
+    <div class="add-class-form-card">
+      <h3 class="form-card-title">{{ 'school-admin.classes.addTitle' | translate }}</h3>
+      <form (submit)="addClass()" class="form-spacing">
+        <div>
+          <label class="form-label">{{ 'school-admin.classes.name' | translate }}</label>
+          <input type="text" [ngModel]="newClassName()" (ngModelChange)="newClassName.set($event)" name="className" required
+                 class="form-input">
+        </div>
+        <button type="submit"
+                [disabled]="!newClassName()"
+                class="btn-primary"
+                [class.btn-disabled]="!newClassName()">
+          {{ 'school-admin.classes.addButton' | translate }}
+        </button>
+      </form>
+    </div>
+
+    <!-- List of classes -->
+    <div class="classes-list-wrapper">
+      <h3 class="form-card-title">{{ 'school-admin.classes.existing' | translate }}</h3>
+      @if (classes().length > 0) {
+        <div class="classes-table-container">
+          <table class="data-table">
+            <thead class="table-header">
+              <tr>
+                <th scope="col" class="table-th">{{ 'school-admin.classes.name' | translate }}</th>
+                <th scope="col" class="table-th table-th-actions">{{ 'common.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of classes(); track item.id) {
+                <tr class="table-row">
+                  <td class="table-td-primary">{{ item.name }}</td>
+                  <td class="table-td table-td-actions">
+                    <button (click)="deleteClass(item)" class="action-button delete-button" [title]="'common.delete' | translate">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="no-classes-message">
+          <p>{{ 'school-admin.classes.noClasses' | translate }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>

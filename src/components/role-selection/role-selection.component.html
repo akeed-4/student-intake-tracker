@@ -1,0 +1,20 @@
+<div class="role-selection-container">
+  @if (currentUser(); as user) {
+    <div class="role-selection-card">
+      <h2 class="role-selection-title">{{ 'roleSelection.title' | translate }}</h2>
+      <p class="role-selection-welcome">{{ 'roleSelection.welcome' | translate : { name: user.name } }}</p>
+      
+      <div class="role-display-box">
+        <p class="role-label">{{ 'roleSelection.yourRoleIs' | translate }}</p>
+        <p class="role-name">{{ translatedRole() }}</p>
+        <p class="role-description">{{ ('roles.' + user.role + '.description') | translate }}</p>
+      </div>
+
+      <p class="role-selection-info">{{ 'roleSelection.info' | translate }}</p>
+      
+      <button (click)="proceedToDashboard()" class="btn-proceed-dashboard">
+        {{ 'roleSelection.proceedButton' | translate }}
+      </button>
+    </div>
+  }
+</div>

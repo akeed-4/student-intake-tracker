@@ -1,0 +1,159 @@
+
+
+<div class="staff-management-container">
+  <h2 class="section-title">{{ 'school-admin.staff.title' | translate }}</h2>
+  <p class="section-description">{{ 'school-admin.staff.addTitle' | translate }}</p>
+
+  <div class="form-and-list-grid">
+    <!-- Add/Edit staff form -->
+    <div class="add-edit-form-card">
+      <h3 class="form-card-title">
+        @if(editingStaff()) {
+          {{ 'school-admin.staff.editTitle' | translate }}
+        } @else {
+          {{ 'school-admin.staff.addTitle' | translate }}
+        }
+      </h3>
+      <form (submit)="saveStaff()" class="form-spacing">
+        <div>
+          <label class="form-label">{{ 'school-admin.staff.name' | translate }}</label>
+          <input type="text" [ngModel]="staffForm().name" (ngModelChange)="updateStaffForm('name', $event)" name="staffName" required
+                 class="form-input">
+        </div>
+        <div>
+          <label class="form-label">{{ 'school-admin.staff.phone' | translate }}</label>
+          <input type="tel" [ngModel]="staffForm().phone" (ngModelChange)="updateStaffForm('phone', $event)" name="staffPhone"
+                 class="form-input">
+        </div>
+        <div>
+          <label class="form-label">{{ 'school-admin.staff.role' | translate }}</label>
+          <select [ngModel]="staffForm().role" (ngModelChange)="updateStaffForm('role', $event)" name="staffRole" required
+                  class="form-select">
+            <option value="" disabled>{{ 'school-admin.staff.selectRole' | translate }}</option>
+            <option value="guard">{{ 'roles.guard.title' | translate }}</option>
+            <option value="teacher">{{ 'roles.teacher.title' | translate }}</option>
+            <option value="school-supervisor">{{ 'roles.school-supervisor.title' | translate }}</option>
+          </select>
+        </div>
+        @if(staffForm().role === 'teacher') {
+           <div class="animated-form-field">
+            <label class="form-label">{{ 'school-admin.staff.class' | translate }}</label>
+            <select [ngModel]="staffForm().classId" (ngModelChange)="updateStaffForm('classId', $event)" name="staffClass" required
+                    class="form-select">
+              <option value="" disabled>{{ 'school-admin.staff.selectClass' | translate }}</option>
+              @for(cls of classes(); track cls.id) {
+                <option [value]="cls.id">{{ cls.name }}</option>
+              }
+            </select>
+          </div>
+        }
+        <div class="form-buttons-padding">
+            <button type="submit" [disabled]="!isStaffFormValid()"
+                  class="btn-primary"
+                  [class.btn-disabled]="!isStaffFormValid()">
+            @if(editingStaff()) {
+              {{ 'common.saveChanges' | translate }}
+            } @else {
+              {{ 'school-admin.staff.addButton' | translate }}
+            }
+          </button>
+           @if(editingStaff()) {
+            <button type="button" (click)="cancelEdit()"
+                    class="btn-secondary">
+              {{ 'common.cancel' | translate }}
+            </button>
+          }
+        </div>
+      </form>
+    </div>
+
+    <!-- List of staff -->
+    <div class="staff-list-wrapper">
+      <h3 class="form-card-title">{{ 'school-admin.staff.existing' | translate }}</h3>
+      @if (staff().length > 0) {
+        <!-- Mobile Card View -->
+        <div class="staff-cards-mobile">
+            @for (user of staff(); track user.id) {
+                <div class="staff-card">
+                    <div class="staff-card-header">
+                        <div>
+                            <h4 class="staff-name">{{ user.name }}</h4>
+                            <p class="staff-phone">{{ user.phone }}</p>
+                        </div>
+                         <span class="status-badge"
+                              [class.status-guard]="user.role === 'guard'"
+                              [class.status-teacher]="user.role === 'teacher'"
+                              [class.status-supervisor]="user.role === 'school-supervisor'">
+                              {{ ('roles.' + user.role + '.title') | translate }}
+                          </span>
+                    </div>
+                    <div class="card-divider"></div>
+                     <div class="card-actions">
+                        <button (click)="startEdit(user)" class="action-button edit-button" [title]="'common.edit' | translate">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                            <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
+                          </svg>
+                        </button>
+                        <button (click)="deleteStaff(user)" class="action-button delete-button" [title]="'common.delete' | translate">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                          </svg>
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+        
+        <!-- Desktop Table View -->
+        <div class="data-table-container">
+            <table class="data-table">
+                <thead class="table-header">
+                    <tr>
+                        <th scope="col" class="table-th">{{ 'school-admin.staff.name' | translate }}</th>
+                        <th scope="col" class="table-th">{{ 'school-admin.staff.phone' | translate }}</th>
+                        <th scope="col" class="table-th">{{ 'school-admin.staff.role' | translate }}</th>
+                        <th scope="col" class="table-th table-th-actions">{{ 'common.actions' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (user of staff(); track user.id) {
+                        <tr class="table-row">
+                            <td class="table-td-primary">{{ user.name }}</td>
+                            <td class="table-td">{{ user.phone }}</td>
+                            <td class="table-td">
+                                <span class="status-badge"
+                                  [class.status-guard]="user.role === 'guard'"
+                                  [class.status-teacher]="user.role === 'teacher'"
+                                  [class.status-supervisor]="user.role === 'school-supervisor'">
+                                  {{ ('roles.' + user.role + '.title') | translate }}
+                                </span>
+                            </td>
+                            <td class="table-td table-td-actions">
+                              <div class="action-buttons-group">
+                                <button (click)="startEdit(user)" class="action-button edit-button" [title]="'common.edit' | translate">
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                                    <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
+                                  </svg>
+                                </button>
+                                <button (click)="deleteStaff(user)" class="action-button delete-button" [title]="'common.delete' | translate">
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+      } @else {
+        <div class="no-staff-message">
+          <p>{{ 'school-admin.staff.noStaff' | translate }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>

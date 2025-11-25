@@ -1,0 +1,152 @@
+
+<div class="authorized-person-container">
+  <h2 class="section-title">{{ 'parent.management.title' | translate }}</h2>
+  <p class="section-description">{{ 'parent.management.description' | translate }}</p>
+
+  <div class="management-grid">
+    <!-- Add/Edit person form -->
+    <div class="add-edit-form-card">
+      <h3 class="form-card-title">
+        @if(editingPerson()) {
+          {{ 'parent.management.editTitle' | translate }}
+        } @else {
+          {{ 'parent.management.addTitle' | translate }}
+        }
+      </h3>
+      <form (submit)="savePerson()" class="form-spacing">
+        <div>
+          <label class="form-label">{{ 'parent.management.name' | translate }}</label>
+          <input type="text" [ngModel]="personForm().name" (ngModelChange)="updatePersonForm('name', $event)" name="personName" required
+                 class="form-input">
+        </div>
+        <div>
+          <label class="form-label">{{ 'parent.management.relation' | translate }}</label>
+          <input type="text" [ngModel]="personForm().relation" (ngModelChange)="updatePersonForm('relation', $event)" name="personRelation" required
+                 class="form-input">
+        </div>
+        <div>
+          <label class="form-label">{{ 'parent.management.phone' | translate }}</label>
+          <input type="tel" [ngModel]="personForm().phone" (ngModelChange)="updatePersonForm('phone', $event)" name="personPhone"
+                 class="form-input">
+        </div>
+         <div>
+          <label class="form-label">{{ 'parent.management.idNumber' | translate }}</label>
+          <input type="text" [ngModel]="personForm().idNumber" (ngModelChange)="updatePersonForm('idNumber', $event)" name="personIdNumber" required
+                 class="form-input">
+        </div>
+
+        <div class="form-buttons-padding">
+            <button type="submit" [disabled]="!isFormValid()"
+                  class="btn-primary"
+                  [class.btn-disabled]="!isFormValid()">
+            @if(editingPerson()) {
+              {{ 'common.saveChanges' | translate }}
+            } @else {
+              {{ 'parent.management.addButton' | translate }}
+            }
+          </button>
+           @if(editingPerson()) {
+            <button type="button" (click)="cancelForm()"
+                    class="btn-secondary">
+              {{ 'common.cancel' | translate }}
+            </button>
+          }
+        </div>
+      </form>
+    </div>
+
+    <!-- Invite Driver Form -->
+    <div class="add-edit-form-card">
+        <h3 class="form-card-title">{{ 'parent.management.inviteTitle' | translate }}</h3>
+        <p class="form-card-description">{{ 'parent.management.inviteDriverDescription' | translate }}</p>
+        <form (submit)="inviteDriver()" class="form-spacing">
+            <div>
+                <label class="form-label">{{ 'common.phone' | translate }}</label>
+                <input type="tel" [ngModel]="driverPhoneNumber()" (ngModelChange)="driverPhoneNumber.set($event)" name="driverPhone" required class="form-input">
+            </div>
+            <button type="submit" [disabled]="!driverPhoneNumber()" class="btn-primary" [class.btn-disabled]="!driverPhoneNumber()">
+                {{ 'parent.management.inviteButton' | translate }}
+            </button>
+        </form>
+    </div>
+  </div>
+
+  <div class="list-section">
+      <h3 class="section-title-alt">{{ 'parent.management.existing' | translate }}</h3>
+      @if (authorizedPersons().length > 0) {
+        <!-- Mobile Card View -->
+        <div class="person-cards-mobile">
+            @for (person of authorizedPersons(); track person.id) {
+                <div class="person-card">
+                    <div class="person-card-header">
+                        <img [src]="person.photoUrl" [alt]="person.name" class="person-avatar">
+                        <div>
+                            <h4 class="person-name">{{ person.name }}</h4>
+                            <p class="person-relation">{{ person.relation }}</p>
+                        </div>
+                    </div>
+                    <div class="card-divider"></div>
+                    <div class="person-details">
+                        <p><span class="detail-label">{{ 'common.phone' | translate }}:</span> <span class="detail-value">{{ person.phone }}</span></p>
+                        <p><span class="detail-label">{{ 'common.idNumber' | translate }}:</span> <span class="detail-value detail-value-mono">{{ person.idNumber }}</span></p>
+                    </div>
+                    <div class="card-divider"></div>
+                    <div class="card-actions">
+                        <button (click)="startEdit(person)" [title]="'common.edit' | translate"
+                                class="action-button edit-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>
+                        </button>
+                         <button (click)="deletePerson(person)" [title]="'common.delete' | translate"
+                                class="action-button delete-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+        <!-- Desktop Table View -->
+        <div class="persons-table-desktop">
+            <table class="data-table">
+                <thead class="table-header">
+                    <tr>
+                        <th scope="col" class="table-th">{{ 'parent.management.name' | translate }}</th>
+                        <th scope="col" class="table-th">{{ 'parent.management.relation' | translate }}</th>
+                        <th scope="col" class="table-th">{{ 'parent.management.phone' | translate }}</th>
+                        <th scope="col" class="table-th">{{ 'parent.management.idNumber' | translate }}</th>
+                        <th scope="col" class="table-th table-th-actions">{{ 'common.actions' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (person of authorizedPersons(); track person.id) {
+                        <tr class="table-row">
+                            <td class="table-td table-td-avatar">
+                                <div class="table-cell-content">
+                                    <img [src]="person.photoUrl" [alt]="person.name" class="table-avatar">
+                                    <span class="table-name">{{ person.name }}</span>
+                                </div>
+                            </td>
+                            <td class="table-td">{{ person.relation }}</td>
+                            <td class="table-td">{{ person.phone }}</td>
+                            <td class="table-td table-td-id-number">{{ person.idNumber }}</td>
+                            <td class="table-td table-td-actions">
+                                <div class="action-buttons-group">
+                                    <button (click)="startEdit(person)" class="action-button edit-button" [title]="'common.edit' | translate">
+                                      <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>
+                                    </button>
+                                     <button (click)="deletePerson(person)" class="action-button delete-button" [title]="'common.delete' | translate">
+                                      <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+      } @else {
+        <div class="no-persons-message">
+          <p>{{ 'parent.management.noPersons' | translate }}</p>
+        </div>
+      }
+  </div>
+</div>

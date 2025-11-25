@@ -1,0 +1,132 @@
+<div class="pickup-status-container">
+  @if (firstRequest(); as request) {
+    @if (request.status === 'arrived' && request.assignedZone) {
+      <div class="spot-assigned-card">
+        <h3 class="spot-assigned-title">
+          <svg xmlns="http://www.w3.org/2000/svg" class="spot-assigned-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 21l-4.95-6.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+          </svg>
+          {{ 'parent.spot.assignedTitle' | translate }}
+        </h3>
+        <p class="spot-assigned-message">{{ 'parent.spot.assignedMessageNew' | translate }}</p>
+        <div class="pickup-spot-display-wrapper">
+          <div class="pickup-spot-display">
+            <div class="pickup-spot-zone">
+              <span class="pickup-spot-label">{{ 'common.zone' | translate }}</span>
+              <span class="pickup-spot-value-zone">{{ request.assignedZone }}</span>
+            </div>
+            <div class="pickup-spot-number">
+              <span class="pickup-spot-label">{{ 'common.spot' | translate }}</span>
+              <span class="pickup-spot-value-number">{{ request.assignedSpot }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    } @else if (request.status === 'arrived' && !request.assignedZone) {
+      <div class="stand-by-card">
+        <h3 class="stand-by-title">
+          <svg xmlns="http://www.w3.org/2000/svg" class="stand-by-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+          </svg>
+          {{ 'parent.spot.standByTitle' | translate }}
+        </h3>
+        <p class="stand-by-message">{{ 'parent.spot.standByMessage' | translate }}</p>
+      </div>
+    } @else if (request.status !== 'arrived' && request.status !== 'completed') {
+      <div class="arrival-button-container">
+        <button (click)="arrivalSignaled.emit()" class="btn-arrived">
+            <svg xmlns="http://www.w3.org/2000/svg" class="btn-arrived-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 21l-4.95-6.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg>
+          {{ 'parent.buttons.arrived' | translate }}
+        </button>
+      </div>
+    }
+
+    <div class="status-tracker-card">
+      <p class="status-tracker-label">{{ 'parent.status.currentStatus' | translate }}</p>
+      <p class="status-tracker-value"
+        [class.status-pending]="request.status === 'pending'"
+        [class.status-acknowledged]="request.status === 'acknowledged'"
+        [class.status-arrived]="request.status === 'arrived'"
+        [class.status-ready]="request.status === 'ready'">
+        {{ ('statuses.' + request.status) | translate }}
+      </p>
+    </div>
+
+    <div class="digital-pass-container">
+      <div class="digital-pass-glow"></div>
+      <div class="digital-pass">
+        <header class="digital-pass-header">
+          <div class="pass-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
+          </div>
+            <div class="pass-title-group">
+            <h3 class="pass-title">{{ 'parent.pass.title' | translate }}</h3>
+            <p class="pass-school-name">{{ authService.currentUserSchool()?.name }}</p>
+          </div>
+        </header>
+        <div class="pass-body">
+          <div class="pass-qr-code-wrapper">
+            <app-qr-code [data]="pickupCode()"></app-qr-code>
+          </div>
+            <p class="pass-instruction">{{ 'parent.pass.instruction' | translate }}</p>
+        </div>
+
+        <footer class="pass-footer">
+          <div class="pass-detail">
+            <span class="pass-detail-label">{{ 'parent.status.pickupCode' | translate }}</span>
+            <span class="pass-detail-value font-mono">{{ pickupCode() }}</span>
+          </div>
+            <div class="pass-detail-divider"></div>
+            <div class="pass-detail">
+            <span class="pass-detail-label">{{ 'parent.share.student' | translate }}</span>
+            <span class="pass-detail-value">{{ studentNames() }}</span>
+          </div>
+          <div class="pass-detail">
+            <span class="pass-detail-label">{{ 'parent.share.person' | translate }}</span>
+            <span class="pass-detail-value">{{ request.authorizedPerson.name }}</span>
+          </div>
+          <div class="pass-detail">
+            <span class="pass-detail-label">{{ 'parent.share.vehicle' | translate }}</span>
+            <span class="pass-detail-value">{{ request.carInfo.color }} - {{ request.carInfo.plateNumber }}</span>
+          </div>
+          <div class="pass-detail-divider"></div>
+          <div class="pass-detail">
+              <span class="pass-detail-label">{{ 'parent.status.liveEta' | translate }}</span>
+              @if(request.status !== 'arrived') {
+                <span class="pass-detail-value live-value">
+                  <span class="live-indicator"></span>
+                  {{ request.eta ?? '...' }} min
+                </span>
+              } @else {
+                  <span class="pass-detail-value">{{ 'statuses.arrived' | translate }}</span>
+              }
+          </div>
+            <div class="pass-detail">
+              <span class="pass-detail-label">{{ 'parent.status.distance' | translate }}</span>
+              @if(request.status !== 'arrived') {
+                  <span class="pass-detail-value">{{ request.distance ? request.distance.toFixed(1) + ' km' : '...' }}</span>
+              } @else {
+                  <span class="pass-detail-value">0 km</span>
+              }
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <div class="share-action-group">
+      <button (click)="shareRequest()" class="share-button">
+        <svg xmlns="http://www.w3.org/2000/svg" class="share-icon" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+        </svg>
+        <span>{{ 'parent.buttons.share' | translate }}</span>
+      </button>
+      <button (click)="copyRequestDetails()" class="copy-button">
+        <svg xmlns="http://www.w3.org/2000/svg" class="copy-icon" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z" />
+          <path d="M4 3a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H4z" />
+        </svg>
+        <span>{{ 'parent.buttons.copy' | translate }}</span>
+      </button>
+    </div>
+  }
+</div>

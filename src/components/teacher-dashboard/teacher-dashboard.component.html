@@ -1,0 +1,139 @@
+<div class="teacher-dashboard-container">
+  <div class="dashboard-header">
+    <h2 class="section-title">{{ 'teacher.portal.title' | translate }}: {{ myClassName() }}</h2>
+    <span class="active-requests-badge">
+      {{ activeRequestsForMyClass().length }} {{ 'teacher.portal.activeRequests' | translate }}
+    </span>
+  </div>
+
+  @if (activeRequestsForMyClass().length > 0) {
+    <!-- Mobile Card View -->
+    <div class="mobile-cards-grid">
+        @for (request of activeRequestsForMyClass(); track request.code) {
+            <div class="request-card-item"
+                 [class.card-ready-border]="request.status === 'ready'"
+                 [class.card-arrived-border]="request.status === 'arrived'">
+                <div class="flex items-center gap-4">
+                    <img [src]="request.student.photoUrl" [alt]="request.student.name" class="w-14 h-14 rounded-full object-cover border-2 border-slate-600">
+                    <div class="student-info">
+                        <div class="student-name-row">
+                          <p class="text-lg font-bold text-white">{{ request.student.name }}</p>
+                          @if (request.assignedZone) {
+                            <div class="pickup-spot-display pickup-spot-display-small">
+                              <div class="pickup-spot-zone">
+                                <span class="pickup-spot-label">{{ 'common.zone' | translate }}</span>
+                                <span class="pickup-spot-value-zone">{{ request.assignedZone }}</span>
+                              </div>
+                              <div class="pickup-spot-number">
+                                <span class="pickup-spot-label">{{ 'common.spot' | translate }}</span>
+                                <span class="pickup-spot-value-number">{{ request.assignedSpot }}</span>
+                              </div>
+                            </div>
+                          }
+                        </div>
+                        <p class="text-sm text-slate-400">
+                            {{ 'teacher.portal.pickupBy' | translate }}: <span class="font-semibold text-slate-300">{{ request.authorizedPerson.name }}</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="border-t border-slate-700"></div>
+                <div class="card-actions">
+                    <span class="status-badge"
+                          [class.status-pending]="request.status === 'pending'"
+                          [class.status-acknowledged]="request.status === 'acknowledged'"
+                          [class.status-arrived]="request.status === 'arrived'"
+                          [class.status-ready]="request.status === 'ready'">
+                          {{ ('statuses.' + request.status) | translate }}
+                    </span>
+                    @if (request.status === 'pending') {
+                        <button (click)="acknowledgeRequest(request.code)" class="btn-secondary">
+                            {{ 'teacher.buttons.acknowledge' | translate }}
+                        </button>
+                    } @else if (request.status === 'acknowledged' || request.status === 'arrived') {
+                        <button (click)="markAsReady(request.code)" class="btn-primary">
+                            {{ 'teacher.portal.markReady' | translate }}
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Desktop Table View -->
+    <div class="data-table-container">
+        <table class="w-full text-sm text-left text-slate-400">
+            <thead class="table-header">
+                <tr>
+                    <th scope="col" class="table-th">{{ 'common.student' | translate }}</th>
+                    <th scope="col" class="table-th">{{ 'common.status' | translate }}</th>
+                    <th scope="col" class="table-th table-th-actions">{{ 'common.actions' | translate }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (request of activeRequestsForMyClass(); track request.code) {
+                    <tr class="table-row" 
+                        [class.table-row-ready]="request.status === 'ready'"
+                        [class.table-row-arrived]="request.status === 'arrived'">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="table-cell-content">
+                                <img [src]="request.student.photoUrl" [alt]="request.student.name" class="w-12 h-12 rounded-full object-cover border-2 border-slate-600">
+                                <div>
+                                    <div class="student-name-row">
+                                        <p class="text-base font-bold text-white">{{ request.student.name }}</p>
+                                        @if (request.assignedZone) {
+                                          <div class="pickup-spot-display pickup-spot-display-small">
+                                            <div class="pickup-spot-zone">
+                                              <span class="pickup-spot-label">{{ 'common.zone' | translate }}</span>
+                                              <span class="pickup-spot-value-zone">{{ request.assignedZone }}</span>
+                                            </div>
+                                            <div class="pickup-spot-number">
+                                              <span class="pickup-spot-label">{{ 'common.spot' | translate }}</span>
+                                              <span class="pickup-spot-value-number">{{ request.assignedSpot }}</span>
+                                            </div>
+                                          </div>
+                                        }
+                                    </div>
+                                    <p class="table-sub-text">
+                                        {{ 'teacher.portal.pickupBy' | translate }}: <span class="font-semibold text-slate-300">{{ request.authorizedPerson.name }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                           <span class="status-badge"
+                              [class.status-pending]="request.status === 'pending'"
+                              [class.status-acknowledged]="request.status === 'acknowledged'"
+                              [class.status-arrived]="request.status === 'arrived'"
+                              [class.status-ready]="request.status === 'ready'">
+                              {{ ('statuses.' + request.status) | translate }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="action-buttons-group">
+                                @if (request.status === 'pending') {
+                                    <button (click)="acknowledgeRequest(request.code)" class="btn-secondary">
+                                        {{ 'teacher.buttons.acknowledge' | translate }}
+                                    </button>
+                                } @else if (request.status === 'acknowledged' || request.status === 'arrived') {
+                                    <button (click)="markAsReady(request.code)" class="btn-primary">
+                                        {{ 'teacher.portal.markReady' | translate }}
+                                    </button>
+                                } @else if (request.status === 'ready') {
+                                     <div class="ready-status-text">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                                        <span>{{ 'teacher.portal.ready' | translate }}</span>
+                                    </div>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    } @else {
+      <div class="no-requests-message">
+        <p class="text-lg">{{ 'teacher.portal.noRequests' | translate }}</p>
+      </div>
+    }
+</div>

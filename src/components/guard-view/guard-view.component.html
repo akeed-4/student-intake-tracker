@@ -1,0 +1,142 @@
+<div class="guard-view-container">
+  
+  @if (!verifiedRequest()) {
+    <div class="input-section">
+      <h2 class="section-title">{{ 'guard.title' | translate }}</h2>
+      
+      @if (scannerActive()) {
+        <div class="qr-scanner-frame">
+          <div id="qr-reader"></div>
+        </div>
+         <button (click)="stopScanner()" class="btn-stop-scanner">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-small" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>
+          {{ 'guard.stopScan' | translate }}
+        </button>
+      } @else {
+        <p class="section-description">
+          {{ 'guard.enterCode' | translate }}
+        </p>
+        <div class="code-input-wrapper">
+          <input #codeInput 
+                 type="tel"
+                 inputmode="numeric"
+                 pattern="[0-9]*"
+                 maxlength="4"
+                 (input)="onCodeInput($event)"
+                 placeholder="----"
+                 [class.animate-shake]="isInvalid()"
+                 class="code-input">
+        </div>
+
+        <button (click)="verifyCode()" 
+                [disabled]="code().length < 4"
+                class="btn-verify"
+                [class.btn-disabled]="code().length < 4">
+          {{ 'guard.verify' | translate }}
+        </button>
+
+        <div class="divider-wrapper">
+            <div class="divider-line"></div>
+            <span class="divider-text">{{ 'common.or' | translate }}</span>
+            <div class="divider-line"></div>
+        </div>
+
+        <button (click)="startScanner()" class="btn-scan-qr">
+           <svg xmlns="http://www.w3.org/2000/svg" class="icon-large" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h-1m-1-6v1m-1 6h.01M6 12a2 2 0 11-4 0 2 2 0 014 0zm0 0a2 2 0 104 0 2 2 0 00-4 0zm0 0h6m-6 6a2 2 0 100-4 2 2 0 010 4zm0 0a2 2 0 110 4 2 2 0 010-4zm0 0v-6m6 0a2 2 0 10-4 0 2 2 0 014 0zm0 0a2 2 0 114 0 2 2 0 01-4 0zm0 0h-6m6 0V6a2 2 0 114 0 2 2 0 01-4 0z" />
+          </svg>
+          {{ 'guard.scanQR' | translate }}
+        </button>
+
+         <button (click)="simulateScan()"
+                class="btn-simulate-scan">
+          {{ 'guard.simulateScan' | translate }}
+        </button>
+      }
+
+      @if (error()) {
+        <p class="error-message">{{ error() }}</p>
+      }
+    </div>
+  } @else {
+    @let request = verifiedRequest()!;
+    <div class="pickup-details-card">
+      <div class="card-header">
+        <h3 class="card-title-success">{{ 'guard.success' | translate }}</h3>
+      </div>
+      
+      <div class="person-avatar-section">
+        <div class="relative">
+          <img [src]="request.authorizedPerson.photoUrl" 
+               [alt]="request.authorizedPerson.name"
+               class="person-avatar-large">
+          <div class="status-badge-success">
+             <svg xmlns="http://www.w3.org/2000/svg" class="icon-medium" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+        </div>
+        <div class="person-details-summary">
+          <p class="detail-label">{{ 'guard.authorizedPerson' | translate }}:</p>
+          <p class="person-name-large">{{ request.authorizedPerson.name }}</p>
+          <p class="person-relation-large">{{ request.authorizedPerson.relation }}</p>
+        </div>
+      </div>
+
+      <div class="divider-line-large"></div>
+
+      <div class="details-group">
+        @if(request.assignedZone) {
+          <div>
+            <h4 class="detail-label-uppercase">{{ 'guard.pickupLocation' | translate }}:</h4>
+            <div class="guard-spot-wrapper">
+              <div class="pickup-spot-display">
+                <div class="pickup-spot-zone">
+                  <span class="pickup-spot-label">{{ 'common.zone' | translate }}</span>
+                  <span class="pickup-spot-value-zone">{{ request.assignedZone }}</span>
+                </div>
+                <div class="pickup-spot-number">
+                  <span class="pickup-spot-label">{{ 'common.spot' | translate }}</span>
+                  <span class="pickup-spot-value-number">{{ request.assignedSpot }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <div>
+          <h4 class="detail-label-uppercase">{{ 'guard.studentInfo' | translate }}:</h4>
+          <div class="detail-box">
+            <p class="detail-value-large">{{ request.student.name }}</p>
+            <p class="detail-value-small">{{ request.student.grade }} - {{ request.student.class }}</p>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="detail-label-uppercase">{{ 'guard.vehicleInfo' | translate }}:</h4>
+          <div class="detail-box">
+            <p class="detail-value-large">{{ request.carInfo.color }}</p>
+            <p class="detail-value-mono">{{ request.carInfo.plateNumber }}</p>
+          </div>
+        </div>
+      </div>
+      
+      @if(request.notes) {
+        <div class="divider-line-large"></div>
+        <div>
+          <h4 class="detail-label-uppercase">{{ 'common.notes' | translate }}:</h4>
+          <div class="detail-box">
+            <p class="notes-text">{{ request.notes }}</p>
+          </div>
+        </div>
+      }
+
+      <div class="confirm-button-wrapper">
+        <button (click)="confirmPickup()"
+                class="btn-confirm-pickup">
+          {{ 'guard.confirm' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+</div>
