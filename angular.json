@@ -25,6 +25,7 @@
           "configurations": {
             "production": {
               "outputHashing": "all",
+              "baseHref": "/student-intake-tracker/",
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
